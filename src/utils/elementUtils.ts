@@ -129,11 +129,7 @@ export const getElementAtPosition = (
 export const deleteElement = (
   element: IElement,
   elements: IElement[],
-): IElement[] => {
-  console.log("deleteElement", element);
-  const elementsCopy = elements.filter((el) => el.id !== element.id);
-  return elementsCopy;
-};
+): IElement[] => elements.filter((el) => el.id !== element.id);
 
 export const adjustElementCorrdinates = (
   element: IElement,

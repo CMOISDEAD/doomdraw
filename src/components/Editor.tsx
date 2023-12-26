@@ -13,7 +13,7 @@ import {
   getElementAtPosition,
   resizedCoordinates,
 } from "../utils/elementUtils";
-// import useHistory from "../hooks/useHistory";
+import useDrawStore from "../store/useStore";
 
 interface Props {
   tool: ELEMENT_TOOL;
@@ -21,8 +21,9 @@ interface Props {
 
 export const Editor = ({ tool }: Props) => {
   const { theme } = useTheme();
-  // const [elements, setElements, undo, redo] = useHistory([]);
-  const [elements, setElements] = useState<IElement[]>([]);
+  const [elements, setElements] = useState<IElement[]>(
+    useDrawStore((state) => state.elements),
+  );
   const [selectedElement, setSelectedElement] = useState<IElement | null>(null);
   const [action, setAction] = useState<ACTION_TYPE>(ACTION_TYPE.NONE);
 
@@ -35,6 +36,7 @@ export const Editor = ({ tool }: Props) => {
     elements.forEach((element) =>
       drawElement(roughCanvas, ctx, element, theme),
     );
+    useDrawStore.setState({ elements });
   }, [elements, theme]);
 
   const updateElement = (
@@ -49,10 +51,9 @@ export const Editor = ({ tool }: Props) => {
     switch (tool) {
       case ELEMENT_TOOL.LINE:
       case ELEMENT_TOOL.RECT:
-      case ELEMENT_TOOL.CIRCLE: {
+      case ELEMENT_TOOL.CIRCLE:
         elementsCopy[id] = createElement(id, x1, y1, x2, y2, tool);
         break;
-      }
       case ELEMENT_TOOL.PEN:
         elementsCopy[id].points = [
           ...elementsCopy[id].points!,
@@ -62,7 +63,6 @@ export const Editor = ({ tool }: Props) => {
       default:
         throw new Error("Invalid tool");
     }
-    // setElements(elementsCopy, true);
     setElements(elementsCopy);
   };
 
@@ -108,15 +108,16 @@ export const Editor = ({ tool }: Props) => {
   };
 
   const handleMouseUp = () => {
-    if (!selectedElement) return;
-    const idx = selectedElement.id;
-    const { id, type } = elements[idx];
-    if (
-      (ACTION_TYPE.DRAW || ACTION_TYPE.RESIZING) &&
-      adjustmentIsRequired(type)
-    ) {
-      const { x1, y1, x2, y2 } = adjustElementCorrdinates(elements[idx]);
-      updateElement(id, x1, y1, x2, y2, type);
+    if (selectedElement) {
+      const idx = selectedElement.id;
+      const { id, type } = elements[idx];
+      if (
+        (ACTION_TYPE.DRAW || ACTION_TYPE.RESIZING) &&
+        adjustmentIsRequired(type)
+      ) {
+        const { x1, y1, x2, y2 } = adjustElementCorrdinates(elements[idx]);
+        updateElement(id, x1, y1, x2, y2, type);
+      }
     }
     setAction(ACTION_TYPE.NONE);
     setSelectedElement(null);
@@ -177,8 +178,7 @@ export const Editor = ({ tool }: Props) => {
       updateElement(id, x1, y1, x2, y2, type);
     } else if (action === ACTION_TYPE.ERASING) {
       const element = getElementAtPosition(clientX, clientY, elements);
-      if (!element) return;
-      setElements(deleteElement(element, elements));
+      if (element) setElements(deleteElement(element, elements));
     }
   };
 
