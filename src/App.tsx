@@ -7,7 +7,7 @@ import { ZoomControl } from "./components/Layout/ZoomControl";
 import { HelpButton } from "./components/Layout/HelpButton";
 
 function App() {
-  const [tool, setTool] = useState<ELEMENT_TOOL>(ELEMENT_TOOL.LINE);
+  const [tool, setTool] = useState<ELEMENT_TOOL>(ELEMENT_TOOL.PEN);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const { name } = event.currentTarget;

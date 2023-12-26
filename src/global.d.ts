@@ -1,15 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export enum ELEMENT_TOOL {
   SELECTION = "SELECTION",
-  LINE = "LINE",
-  RECT = "RECT",
-  CIRCLE = "CIRCLE",
   PEN = "PEN",
+  RECT = "RECT",
+  LINE = "LINE",
+  CIRCLE = "CIRCLE",
+  ERASER = "ERASER",
 }
 
 export enum ACTION_TYPE {
   NONE = "NONE",
   DRAW = "DRAW",
+  ERASING = "ERASING",
   MOVING = "MOVING",
+  RESIZING = "RESIZING",
 }
 
 interface ICoordinates {
@@ -25,6 +29,11 @@ interface IElement {
   y2: number;
   offsetX?: number;
   offsetY?: number;
+  xOffsets?: number[];
+  yOffsets?: number[];
+  position?: any;
+  points?: any[];
+
   type: ELEMENT_TOOL;
-  roughElement: unknown;
+  roughElement: any;
 }

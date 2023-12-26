@@ -1,4 +1,11 @@
-import { RxHand, RxSlash, RxBox, RxCircle, RxPencil1 } from "react-icons/rx";
+import {
+  RxHand,
+  RxSlash,
+  RxBox,
+  RxCircle,
+  RxPencil1,
+  RxEraser,
+} from "react-icons/rx";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import { ELEMENT_TOOL } from "../../global.d";
 
@@ -42,9 +49,15 @@ export const Toolbar = ({ tool, handleTool }: Props) => {
           onClick={handleTool}
           name={ELEMENT_TOOL.PEN}
           color={tool === ELEMENT_TOOL.PEN ? "success" : "default"}
-          isDisabled={true}
         >
           <RxPencil1 />
+        </Button>
+        <Button
+          onClick={handleTool}
+          name={ELEMENT_TOOL.ERASER}
+          color={tool === ELEMENT_TOOL.ERASER ? "success" : "default"}
+        >
+          <RxEraser />
         </Button>
       </ButtonGroup>
     </div>
