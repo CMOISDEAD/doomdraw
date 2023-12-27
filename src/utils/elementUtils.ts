@@ -6,7 +6,7 @@ import getStroke from "perfect-freehand";
 const generator = rough.generator();
 
 export const createElement = (
-  id: number,
+  id: string,
   x1: number,
   y1: number,
   x2: number,
@@ -39,7 +39,7 @@ export const createElement = (
         roughElement: null,
       };
     default:
-      roughElement = generator.line(x1, y1, x2, y2, opts);
+      throw new Error("Unimplemented type");
   }
   return { id, x1, y1, x2, y2, type, roughElement };
 };

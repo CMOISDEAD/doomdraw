@@ -1,19 +1,19 @@
 import { useTheme } from "next-themes";
 import { MouseEvent, useEffect, useLayoutEffect, useState } from "react";
 import rough from "roughjs/bundled/rough.esm.js";
+import { v4 as uuidv4 } from "uuid";
 import { ACTION_TYPE, ELEMENT_TOOL, IElement } from "../global.d";
+import useHistory from "../hooks/useHistory";
 import { drawGrid } from "../utils/canvasUtils";
 import {
   adjustElementCorrdinates,
   adjustmentIsRequired,
   createElement,
   cursorForPosition,
-  deleteElement,
   drawElement,
   getElementAtPosition,
   resizedCoordinates,
 } from "../utils/elementUtils";
-import useHistory from "../hooks/useHistory";
 
 interface Props {
   tool: ELEMENT_TOOL;
@@ -21,7 +21,13 @@ interface Props {
 
 export const Editor = ({ tool }: Props) => {
   const { theme } = useTheme();
-  const [elements, setElements, undo, redo] = useHistory();
+  const {
+    elements,
+    setState: setElements,
+    undo,
+    redo,
+    deleteElement,
+  } = useHistory();
   const [selectedElement, setSelectedElement] = useState<IElement | null>(null);
   const [action, setAction] = useState<ACTION_TYPE>(ACTION_TYPE.NONE);
 
@@ -46,7 +52,7 @@ export const Editor = ({ tool }: Props) => {
   }, [undo, redo]);
 
   const updateElement = (
-    id: number,
+    id: string,
     x1: number,
     y1: number,
     x2: number,
@@ -54,15 +60,17 @@ export const Editor = ({ tool }: Props) => {
     tool: ELEMENT_TOOL,
   ) => {
     const elementsCopy = [...elements];
+    const idx = elementsCopy.findIndex((element) => element.id === id);
     switch (tool) {
       case ELEMENT_TOOL.LINE:
       case ELEMENT_TOOL.RECT:
-      case ELEMENT_TOOL.CIRCLE:
-        elementsCopy[id] = createElement(id, x1, y1, x2, y2, tool);
+      case ELEMENT_TOOL.CIRCLE: {
+        elementsCopy[idx] = createElement(id, x1, y1, x2, y2, tool);
         break;
+      }
       case ELEMENT_TOOL.PEN:
-        elementsCopy[id].points = [
-          ...elementsCopy[id].points!,
+        elementsCopy[idx].points = [
+          ...elementsCopy[idx].points!,
           { x: x2, y: y2 },
         ];
         break;
@@ -94,13 +102,12 @@ export const Editor = ({ tool }: Props) => {
     } else if (tool === ELEMENT_TOOL.ERASER) {
       setAction(ACTION_TYPE.ERASING);
       const element = getElementAtPosition(clientX, clientY, elements);
-      if (!element) return;
-      setElements(deleteElement(element, elements));
+      if (element) deleteElement(element.id);
     } else if (tool === ELEMENT_TOOL.HAND) {
       //event.currentTarget.style.cursor = "grabbing";
     } else {
       // drawing tools (rectangle, circle, line, pen), maybe this should be added to the comparison
-      const idx = elements.length;
+      const idx = uuidv4();
       const element = createElement(
         idx,
         clientX,
@@ -117,7 +124,9 @@ export const Editor = ({ tool }: Props) => {
 
   const handleMouseUp = () => {
     if (selectedElement) {
-      const idx = selectedElement.id;
+      const idx = elements.findIndex(
+        (element) => element.id === selectedElement.id,
+      );
       const { id, type } = elements[idx];
       if (
         (ACTION_TYPE.DRAW || ACTION_TYPE.RESIZING) &&
@@ -156,9 +165,9 @@ export const Editor = ({ tool }: Props) => {
     // ACTIONS
     if (action === ACTION_TYPE.DRAW) {
       const { clientX, clientY } = event;
-      const idx = elements.length - 1;
-      const { x1, y1 } = elements[idx];
-      updateElement(idx, x1, y1, clientX, clientY, tool);
+      const lastElements = elements[elements.length - 1];
+      const { x1, y1 } = lastElements;
+      updateElement(lastElements.id, x1, y1, clientX, clientY, tool);
     } else if (action === ACTION_TYPE.MOVING) {
       if (!selectedElement) return;
       if (selectedElement.type === ELEMENT_TOOL.PEN) {
@@ -167,11 +176,14 @@ export const Editor = ({ tool }: Props) => {
           y: clientY - selectedElement.yOffsets![idx],
         }));
         const elementsCopy = [...elements];
-        elementsCopy[selectedElement.id] = {
-          ...elementsCopy[selectedElement.id],
+        const idx = elementsCopy.findIndex(
+          (element) => element.id === selectedElement.id,
+        );
+        elementsCopy[idx] = {
+          ...elementsCopy[idx],
           points: newPoints,
         };
-        setElements(elementsCopy);
+        setElements(elementsCopy, true);
       } else {
         const { id, x1, y1, x2, y2, offsetX, offsetY, type } = selectedElement;
         const width = x2 - x1;
@@ -191,7 +203,7 @@ export const Editor = ({ tool }: Props) => {
       updateElement(id, x1, y1, x2, y2, type);
     } else if (action === ACTION_TYPE.ERASING) {
       const element = getElementAtPosition(clientX, clientY, elements);
-      if (element) setElements(deleteElement(element, elements));
+      if (element) console.log("not implemented"); // deleteElement(element.id);
     }
   };
 

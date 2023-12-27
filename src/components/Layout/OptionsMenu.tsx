@@ -19,7 +19,7 @@ import useDrawStore from "../../store/useStore";
 
 export const OptionsMenu = () => {
   const handleClearCanvas = () => {
-    useDrawStore.setState({ elements: [[]], historyIndex: 0 });
+    useDrawStore.setState({ history: [[]], historyIndex: 0 });
   };
 
   return (

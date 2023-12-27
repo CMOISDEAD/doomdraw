@@ -4,7 +4,7 @@ import { IElement } from "../global";
 
 interface Store {
   historyIndex: number;
-  elements: IElement[][];
+  history: IElement[][];
   setElements: (action: IElement[][]) => void;
   setHistoryIndex: (action: (prevState: number) => number) => void;
 }
@@ -13,8 +13,8 @@ const useDrawStore = create<Store>()(
   persist(
     (set) => ({
       historyIndex: 0,
-      elements: [[]],
-      setElements: (action) => set({ elements: action }),
+      history: [[]],
+      setElements: (action) => set({ history: action }),
       setHistoryIndex: (action) =>
         set((state) => ({ historyIndex: action(state.historyIndex) })),
     }),

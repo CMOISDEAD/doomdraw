@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import useDrawStore from "../store/useStore";
+import { IElement } from "../global";
 
 const useHistory = () => {
   const {
-    historyIndex: index,
-    setHistoryIndex: setIndex,
-    elements,
+    historyIndex,
+    setHistoryIndex,
+    history: elements,
     setElements,
   } = useDrawStore((state) => state);
   const [history, setHistory] = useState(elements);
@@ -15,26 +16,45 @@ const useHistory = () => {
     setElements(history);
   }, [history, setElements]);
 
-  const setState = (action: (value: any) => [], overwrite = false) => {
+  const setState = (
+    action: IElement[] | ((value: IElement[]) => IElement[]),
+    overwrite = false,
+  ) => {
     const newState =
-      typeof action === "function" ? action(history[index]) : action;
+      typeof action === "function" ? action(history[historyIndex]) : action;
     if (overwrite) {
       const historyCopy = [...history];
-      historyCopy[index] = newState;
+      historyCopy[historyIndex] = newState;
       setHistory(historyCopy);
     } else {
-      const updatedState = [...history].slice(0, index + 1);
+      const updatedState = [...history].slice(0, historyIndex + 1);
       setHistory([...updatedState, newState]);
-      setIndex((prevState) => prevState + 1);
+      setHistoryIndex((prevState) => prevState + 1);
     }
   };
 
-  const undo = () => index > 0 && setIndex((prevState) => prevState - 1);
+  // HACK: this doesn't work with slide delete action.
+  const deleteElement = (id: string) => {
+    const actualCopy = [...history[historyIndex]];
+    const filteredElements = actualCopy.filter((element) => element.id !== id);
+    setHistory([...history, filteredElements]);
+    setHistoryIndex((prevState) => prevState + 1);
+  };
+
+  const undo = () =>
+    historyIndex > 0 && setHistoryIndex((prevState) => prevState - 1);
 
   const redo = () =>
-    index < history.length - 1 && setIndex((prevState) => prevState + 1);
+    historyIndex < history.length - 1 &&
+    setHistoryIndex((prevState) => prevState + 1);
 
-  return [history[index], setState, undo, redo];
+  return {
+    elements: history[historyIndex],
+    setState,
+    undo,
+    redo,
+    deleteElement,
+  };
 };
 
 export default useHistory;
