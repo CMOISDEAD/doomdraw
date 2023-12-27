@@ -2,6 +2,7 @@ import { useTheme } from "next-themes";
 import { MouseEvent, useLayoutEffect, useState } from "react";
 import rough from "roughjs/bundled/rough.esm.js";
 import { ACTION_TYPE, ELEMENT_TOOL, IElement } from "../global.d";
+import useDrawStore from "../store/useStore";
 import { drawGrid } from "../utils/canvasUtils";
 import {
   adjustElementCorrdinates,
@@ -13,7 +14,6 @@ import {
   getElementAtPosition,
   resizedCoordinates,
 } from "../utils/elementUtils";
-import useDrawStore from "../store/useStore";
 
 interface Props {
   tool: ELEMENT_TOOL;

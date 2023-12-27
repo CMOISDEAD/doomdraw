@@ -17,7 +17,6 @@ export const createElement = (
     roughness: 0.5,
   };
   let roughElement;
-
   switch (type) {
     case ELEMENT_TOOL.LINE:
       roughElement = generator.line(x1, y1, x2, y2, opts);
@@ -42,7 +41,6 @@ export const createElement = (
     default:
       roughElement = generator.line(x1, y1, x2, y2, opts);
   }
-
   return { id, x1, y1, x2, y2, type, roughElement };
 };
 
@@ -151,18 +149,15 @@ export const adjustElementCorrdinates = (
 };
 
 export const cursorForPosition = (position: string) => {
-  switch (position) {
-    case "tl":
-    case "br":
-    case "start":
-    case "end":
-      return "nwse-resize";
-    case "tr":
-    case "bl":
-      return "nesw-resize";
-    default:
-      return "move";
-  }
+  if (
+    position === "tl" ||
+    position === "br" ||
+    position === "start" ||
+    position === "end"
+  )
+    return "nwse-resize";
+  else if (position === "tr" || position === "bl") return "nesw-resize";
+  else return "move";
 };
 
 export const resizedCoordinates = (
