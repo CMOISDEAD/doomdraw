@@ -5,6 +5,7 @@ import { Toolbar } from "./components/Layout/Toolbar";
 import { ThemeSwitcher } from "./components/Layout/ThemeSwitcher";
 import { ZoomControl } from "./components/Layout/ZoomControl";
 import { HelpButton } from "./components/Layout/HelpButton";
+import { OptionsMenu } from "./components/Layout/OptionsMenu";
 
 function App() {
   const [tool, setTool] = useState<ELEMENT_TOOL>(ELEMENT_TOOL.PEN);
@@ -16,8 +17,9 @@ function App() {
 
   return (
     <div className="relative">
-      <ThemeSwitcher />
+      <OptionsMenu />
       <Toolbar tool={tool} handleTool={handleClick} />
+      <ThemeSwitcher />
       <Editor tool={tool} />
       <ZoomControl />
       <HelpButton />

@@ -5,6 +5,7 @@ import {
   RxCircle,
   RxPencil1,
   RxEraser,
+  RxCursorArrow,
 } from "react-icons/rx";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import { ELEMENT_TOOL } from "../../global.d";
@@ -19,10 +20,17 @@ export const Toolbar = ({ tool, handleTool }: Props) => {
       <ButtonGroup variant="flat">
         <Button
           onClick={handleTool}
+          name={ELEMENT_TOOL.HAND}
+          color={tool === ELEMENT_TOOL.HAND ? "success" : "default"}
+        >
+          <RxHand />
+        </Button>
+        <Button
+          onClick={handleTool}
           name={ELEMENT_TOOL.SELECTION}
           color={tool === ELEMENT_TOOL.SELECTION ? "success" : "default"}
         >
-          <RxHand />
+          <RxCursorArrow />
         </Button>
         <Button
           onClick={handleTool}

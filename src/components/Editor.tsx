@@ -21,9 +21,11 @@ interface Props {
 
 export const Editor = ({ tool }: Props) => {
   const { theme } = useTheme();
-  const [elements, setElements] = useState<IElement[]>(
-    useDrawStore((state) => state.elements),
-  );
+  // const [elements, setElements] = useState<IElement[]>(
+  //   useDrawStore((state) => state.elements),
+  // );
+  // NOTE: I'm not sure if this is the best way to do this, sometimes when we have a lot of elements in the store, the canvas gets slow
+  const { elements, setElements } = useDrawStore((state) => state);
   const [selectedElement, setSelectedElement] = useState<IElement | null>(null);
   const [action, setAction] = useState<ACTION_TYPE>(ACTION_TYPE.NONE);
 
@@ -36,7 +38,7 @@ export const Editor = ({ tool }: Props) => {
     elements.forEach((element) =>
       drawElement(roughCanvas, ctx, element, theme),
     );
-    useDrawStore.setState({ elements });
+    // useDrawStore.setState({ elements });
   }, [elements, theme]);
 
   const updateElement = (
@@ -90,8 +92,10 @@ export const Editor = ({ tool }: Props) => {
       const element = getElementAtPosition(clientX, clientY, elements);
       if (!element) return;
       setElements(deleteElement(element, elements));
+    } else if (tool === ELEMENT_TOOL.HAND) {
+      //event.currentTarget.style.cursor = "grabbing";
     } else {
-      // drawing tools (rectangle, circle, line, pen)
+      // drawing tools (rectangle, circle, line, pen), maybe this should be added to the comparison
       const idx = elements.length;
       const element = createElement(
         idx,
@@ -137,9 +141,14 @@ export const Editor = ({ tool }: Props) => {
         clientY,
         elements,
       )
-        ? "crosshair"
+        ? "cell"
         : "default";
+    } else if (tool === ELEMENT_TOOL.HAND) {
+      event.currentTarget.style.cursor = "grab";
+    } else {
+      event.currentTarget.style.cursor = "crosshair";
     }
+
     // ACTIONS
     if (action === ACTION_TYPE.DRAW) {
       const { clientX, clientY } = event;

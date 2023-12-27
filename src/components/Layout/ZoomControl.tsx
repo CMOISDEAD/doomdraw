@@ -8,6 +8,7 @@ export const ZoomControl = () => {
         <Button>
           <RxPlus />
         </Button>
+        <Button>100%</Button>
         <Button>
           <RxMinus />
         </Button>

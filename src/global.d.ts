@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export enum ELEMENT_TOOL {
   SELECTION = "SELECTION",
+  HAND = "HAND",
   PEN = "PEN",
   RECT = "RECT",
   LINE = "LINE",
@@ -10,6 +11,7 @@ export enum ELEMENT_TOOL {
 
 export enum ACTION_TYPE {
   NONE = "NONE",
+  GRABBING = "GRABBING",
   DRAW = "DRAW",
   ERASING = "ERASING",
   MOVING = "MOVING",
