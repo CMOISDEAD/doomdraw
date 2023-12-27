@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
-import { IElement } from "../global";
+import { useEffect, useState } from "react";
+import useDrawStore from "../store/useStore";
 
-// FIX: if i wan to use this hook, i need to refactor all the code :(
-const useHistory = (initialState: IElement[]) => {
-  const [index, setIndex] = useState(0);
-  const [history, setHistory] = useState([initialState]);
+const useHistory = () => {
+  const {
+    historyIndex: index,
+    setHistoryIndex: setIndex,
+    elements,
+    setElements,
+  } = useDrawStore((state) => state);
+  const [history, setHistory] = useState(elements);
+
+  useEffect(() => {
+    setElements(history);
+  }, [history, setElements]);
 
   const setState = (action: (value: any) => [], overwrite = false) => {
     const newState =

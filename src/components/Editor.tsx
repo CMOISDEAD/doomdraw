@@ -1,8 +1,7 @@
 import { useTheme } from "next-themes";
-import { MouseEvent, useLayoutEffect, useState } from "react";
+import { MouseEvent, useEffect, useLayoutEffect, useState } from "react";
 import rough from "roughjs/bundled/rough.esm.js";
 import { ACTION_TYPE, ELEMENT_TOOL, IElement } from "../global.d";
-import useDrawStore from "../store/useStore";
 import { drawGrid } from "../utils/canvasUtils";
 import {
   adjustElementCorrdinates,
@@ -14,6 +13,7 @@ import {
   getElementAtPosition,
   resizedCoordinates,
 } from "../utils/elementUtils";
+import useHistory from "../hooks/useHistory";
 
 interface Props {
   tool: ELEMENT_TOOL;
@@ -21,11 +21,7 @@ interface Props {
 
 export const Editor = ({ tool }: Props) => {
   const { theme } = useTheme();
-  // const [elements, setElements] = useState<IElement[]>(
-  //   useDrawStore((state) => state.elements),
-  // );
-  // NOTE: I'm not sure if this is the best way to do this, sometimes when we have a lot of elements in the store, the canvas gets slow
-  const { elements, setElements } = useDrawStore((state) => state);
+  const [elements, setElements, undo, redo] = useHistory();
   const [selectedElement, setSelectedElement] = useState<IElement | null>(null);
   const [action, setAction] = useState<ACTION_TYPE>(ACTION_TYPE.NONE);
 
@@ -38,8 +34,16 @@ export const Editor = ({ tool }: Props) => {
     elements.forEach((element) =>
       drawElement(roughCanvas, ctx, element, theme),
     );
-    // useDrawStore.setState({ elements });
   }, [elements, theme]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === "z") undo();
+      else if (event.ctrlKey && event.key === "Z") redo();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [undo, redo]);
 
   const updateElement = (
     id: number,
@@ -65,7 +69,7 @@ export const Editor = ({ tool }: Props) => {
       default:
         throw new Error("Invalid tool");
     }
-    setElements(elementsCopy);
+    setElements(elementsCopy, true);
   };
 
   const handleMouseDown = (event: MouseEvent<HTMLCanvasElement>) => {
